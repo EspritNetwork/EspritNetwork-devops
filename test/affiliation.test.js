@@ -6,7 +6,6 @@ const chaiHttp = require('chai-http');
 const server = require('../app');
 const Affiliation = require('../models/affiliation');
 
-const mongoose = require('mongoose');
 
 
 chai.use(chaiHttp);
