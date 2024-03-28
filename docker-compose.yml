@@ -22,13 +22,5 @@ services:
       - '3000:3000'
     depends_on:
       - db
-
-  nexus:
-    image: sonatype/nexus3
-    container_name: nexus
-    restart: always
-    ports:
-      - '8081:8081'
-      - '8083:8083' 
 volumes:
   mongo-data:
