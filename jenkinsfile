@@ -15,32 +15,34 @@ pipeline {
             }
         }
 
-        // stage('Unit Test') {
-        //     steps {
-        //         script {
-        //             sh 'npm test'
-        //         }
-        //     }
-        // }
+        stage('Unit Test') {
+            steps {
+                script {
+                    sh 'npm test'
+                }
+            }
+        }
 
-        // stage('Build application') {
-        //     steps {
-        //         script {
-        //             sh ('npm run build-dev')
-        //         }
-        //     }
-        // }
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    def scannerHome = tool 'scanner'
+                    withSonarQubeEnv {
+                    sh "${scannerHome}/bin/sonar-scanner"
+                    }
+                }
+            }
+        }
 
-        // stage('SonarQube Analysis') {
-        //     steps {
-        //         script {
-        //             def scannerHome = tool 'scanner'
-        //             withSonarQubeEnv {
-        //             sh "${scannerHome}/bin/sonar-scanner"
-        //             }
-        //         }
-        //     }
-        // }
+        stage('Build application') {
+            steps {
+                script {
+                    sh ('npm run build-dev')
+                }
+            }
+        }
+
+        
 
         stage('Building images (node and mongo)') {
             steps {
@@ -71,5 +73,21 @@ pipeline {
             }
         }
 
+        stage("Run Prometheus"){
+           steps{
+                script{
+                    sh('docker start prometheus')
+                }
+            }
+        }
+
+        stage("Run Grafana"){ 
+            steps{
+                script{
+                    sh('docker start grafana')
+                }
+            }
+        }
     }
+  
 }
