@@ -1,4 +1,4 @@
-version: '2.26'
+version: "2.26"
 services:
   db:
     image: mongo:4.0.3
@@ -19,7 +19,7 @@ services:
     restart: always
     container_name: back
     ports:
-      - '3000:3000'
+      - "5000:5000"
     depends_on:
       - db
 volumes:

@@ -32,7 +32,6 @@ const affiliationRouter = require("./routes/affiliation");
 const competenceRouter = require("./routes/competence");
 const departementRouter = require("./routes/departement");
 
-
 app.use(bodyParser.json());
 
 app.use("/test", testRouter);
@@ -47,7 +46,7 @@ app.use("/departement", departementRouter);
 
 // Server configuration
 const server = http.createServer(app);
-const port = 3000;
+const port = 5000;
 server.listen(port, () => console.log(`Server listening on port ${port}`));
 
 module.exports = app;
