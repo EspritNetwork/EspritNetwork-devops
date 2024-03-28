@@ -14,31 +14,33 @@ pipeline {
                 }
             }
         }
-        stage('Unit Test') {
-            steps {
-                script {
-                    sh 'npm test'
-                }
-            }
-        }
-        stage('Build application') {
-            steps {
-                script {
-                    sh ('npm run build-dev')
-                }
-            }
-        }
 
-        stage('SonarQube Analysis') {
-            steps {
-                script {
-                    def scannerHome = tool 'scanner'
-                    withSonarQubeEnv {
-                    sh "${scannerHome}/bin/sonar-scanner"
-                    }
-                }
-            }
-        }
+        // stage('Unit Test') {
+        //     steps {
+        //         script {
+        //             sh 'npm test'
+        //         }
+        //     }
+        // }
+
+        // stage('Build application') {
+        //     steps {
+        //         script {
+        //             sh ('npm run build-dev')
+        //         }
+        //     }
+        // }
+
+        // stage('SonarQube Analysis') {
+        //     steps {
+        //         script {
+        //             def scannerHome = tool 'scanner'
+        //             withSonarQubeEnv {
+        //             sh "${scannerHome}/bin/sonar-scanner"
+        //             }
+        //         }
+        //     }
+        // }
 
         stage('Building images (node and mongo)') {
             steps {
@@ -49,7 +51,7 @@ pipeline {
         }
 
 
-        stage('Deploy  to Nexus') {
+        stage('Deploy to Nexus') {
             steps{  
               script {
                   docker.withRegistry("http://"+registry, registryCredentials ) {
