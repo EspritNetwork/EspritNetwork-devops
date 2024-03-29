@@ -10,7 +10,7 @@ pipeline {
         stage('Install dependencies') {
             steps {
                 script {
-                    sh ('npm install')
+                    sh 'npm install'
                 }
             }
         }
@@ -26,7 +26,7 @@ pipeline {
         stage('Build application') {
             steps {
                 script {
-                    sh ('npm run build-dev')
+                    sh 'npm run build-dev'
                 }
             }
         }
@@ -34,7 +34,7 @@ pipeline {
         stage('Building images (node and mongo)') {
             steps {
                 script {
-                    sh('docker-compose build')
+                    sh 'docker-compose build'
                 }
             }
         }
@@ -43,7 +43,7 @@ pipeline {
             steps {  
                 script {
                     docker.withRegistry("http://"+registry, registryCredentials ) {
-                        sh('docker push $registry/nodemongoapp:6.0')
+                        sh 'docker push $registry/nodemongoapp:6.0'
                     }
                 }
             }
@@ -53,8 +53,8 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry("http://${registry}", registryCredentials) {
-                        sh('docker pull ${registry}/nodemongoapp:6.0')
-                        sh('docker-compose up -d')
+                        sh 'docker pull ${registry}/nodemongoapp:6.0'
+                        sh 'docker-compose up -d'
                     }
                 }
             }
@@ -63,7 +63,7 @@ pipeline {
         stage("Run Prometheus") {
             steps {
                 script {
-                    sh('docker start prometheus')
+                    sh 'docker start prometheus'
                 }
             }
         }
@@ -71,7 +71,7 @@ pipeline {
         stage("Run Grafana") { 
             steps {
                 script {
-                    sh('docker start grafana')
+                    sh 'docker start grafana'
                 }
             }
             when {
@@ -80,21 +80,27 @@ pipeline {
                     currentBuild.result == 'SUCCESS'
                 }
             }
-        }
-
-        stage('SonarQube Analysis') {
-            steps {
-                script {
-                    def scannerHome = tool 'scanner'
-                    withSonarQubeEnv {
-                        sh "${scannerHome}/bin/sonar-scanner"
+            post {
+                success {
+                    script {
+                        env.GRAFANA_SUCCESS = true
                     }
                 }
             }
-            when {
-                beforeAgent true
-                expression {
-                    currentBuild.rawBuild.causes.find { it.shortDescription == 'Started by user' } != null
+        }
+
+        script {
+            def runSonarQube = env.GRAFANA_SUCCESS == true
+            if (runSonarQube) {
+                stage('SonarQube Analysis') {
+                    steps {
+                        script {
+                            def scannerHome = tool 'scanner'
+                            withSonarQubeEnv {
+                                sh "${scannerHome}/bin/sonar-scanner"
+                            }
+                        }
+                    }
                 }
             }
         }
