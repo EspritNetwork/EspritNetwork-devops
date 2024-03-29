@@ -4,7 +4,7 @@ pipeline {
     environment {
         registryCredentials = "nexus"
         registry = "192.168.33.10:8083"
-     }
+    }
 
     stages {
         stage('Install dependencies') {
@@ -23,7 +23,6 @@ pipeline {
             }
         }
 
-
         stage('Build application') {
             steps {
                 script {
@@ -31,8 +30,6 @@ pipeline {
                 }
             }
         }
-
-        
 
         stage('Building images (node and mongo)') {
             steps {
@@ -42,12 +39,12 @@ pipeline {
             }
         }
 
-
         stage('Deploy to Nexus') {
-            steps{  
-              script {
-                  docker.withRegistry("http://"+registry, registryCredentials ) {
-                  sh('docker push $registry/nodemongoapp:6.0')}
+            steps {  
+                script {
+                    docker.withRegistry("http://"+registry, registryCredentials ) {
+                        sh('docker push $registry/nodemongoapp:6.0')
+                    }
                 }
             }
         }
@@ -63,18 +60,24 @@ pipeline {
             }
         }
 
-        stage("Run Prometheus"){
-           steps{
-                script{
+        stage("Run Prometheus") {
+            steps {
+                script {
                     sh('docker start prometheus')
                 }
             }
         }
 
-        stage("Run Grafana"){ 
-            steps{
-                script{
+        stage("Run Grafana") { 
+            steps {
+                script {
                     sh('docker start grafana')
+                }
+            }
+            when {
+                beforeAgent true
+                expression {
+                    currentBuild.result == 'SUCCESS'
                 }
             }
         }
@@ -84,11 +87,16 @@ pipeline {
                 script {
                     def scannerHome = tool 'scanner'
                     withSonarQubeEnv {
-                    sh "${scannerHome}/bin/sonar-scanner"
+                        sh "${scannerHome}/bin/sonar-scanner"
                     }
+                }
+            }
+            when {
+                beforeAgent true
+                expression {
+                    currentBuild.rawBuild.causes.find { it.shortDescription == 'Started by user' } != null
                 }
             }
         }
     }
-  
 }
