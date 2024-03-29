@@ -4,13 +4,13 @@ pipeline {
     environment {
         registryCredentials = "nexus"
         registry = "192.168.33.10:8083"
-    }
+     }
 
     stages {
         stage('Install dependencies') {
             steps {
                 script {
-                    sh 'npm install'
+                    sh ('npm install')
                 }
             }
         }
@@ -23,28 +23,31 @@ pipeline {
             }
         }
 
+
         stage('Build application') {
             steps {
                 script {
-                    sh 'npm run build-dev'
+                    sh ('npm run build-dev')
                 }
             }
         }
+
+        
 
         stage('Building images (node and mongo)') {
             steps {
                 script {
-                    sh 'docker-compose build'
+                    sh('docker-compose build')
                 }
             }
         }
 
+
         stage('Deploy to Nexus') {
-            steps {  
-                script {
-                    docker.withRegistry("http://"+registry, registryCredentials ) {
-                        sh 'docker push $registry/nodemongoapp:6.0'
-                    }
+            steps{  
+              script {
+                  docker.withRegistry("http://"+registry, registryCredentials ) {
+                  sh('docker push $registry/nodemongoapp:6.0')}
                 }
             }
         }
@@ -53,56 +56,39 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry("http://${registry}", registryCredentials) {
-                        sh 'docker pull ${registry}/nodemongoapp:6.0'
-                        sh 'docker-compose up -d'
+                        sh('docker pull ${registry}/nodemongoapp:6.0')
+                        sh('docker-compose up -d')
                     }
                 }
             }
         }
 
-        stage("Run Prometheus") {
-            steps {
-                script {
-                    sh 'docker start prometheus'
+        stage("Run Prometheus"){
+           steps{
+                script{
+                    sh('docker start prometheus')
                 }
             }
         }
 
-        stage("Run Grafana") { 
-            steps {
-                script {
-                    sh 'docker start grafana'
-                }
-            }
-            when {
-                beforeAgent true
-                expression {
-                    currentBuild.result == 'SUCCESS'
-                }
-            }
-            post {
-                success {
-                    script {
-                        env.GRAFANA_SUCCESS = true
-                    }
+        stage("Run Grafana"){ 
+            steps{
+                script{
+                    sh('docker start grafana')
                 }
             }
         }
 
-        script {
-            def runSonarQube = env.GRAFANA_SUCCESS == true
-            if (runSonarQube) {
-                stage('SonarQube Analysis') {
-                    steps {
-                        script {
-                            def scannerHome = tool 'scanner'
-                            withSonarQubeEnv {
-                                sh "${scannerHome}/bin/sonar-scanner"
-                            }
-                        }
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    def scannerHome = tool 'scanner'
+                    withSonarQubeEnv {
+                    sh "${scannerHome}/bin/sonar-scanner"
                     }
                 }
             }
         }
     }
+  
 }
