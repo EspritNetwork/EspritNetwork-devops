@@ -3,5 +3,5 @@ WORKDIR /app
 COPY . /app
 RUN npm install
 RUN npm run build-dev
-EXPOSE 5012
+EXPOSE 5013
 CMD  ["npm", "start"]

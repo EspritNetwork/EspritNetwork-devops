@@ -46,7 +46,7 @@ app.use("/departement", departementRouter);
 
 // Server configuration
 const server = http.createServer(app);
-const port = 5012;
+const port = 5013;
 server.listen(port, () => console.log(`Server listening on port ${port}`));
 
 module.exports = app;
