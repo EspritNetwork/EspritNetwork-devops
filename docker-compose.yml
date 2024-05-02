@@ -19,7 +19,7 @@ services:
     restart: always
     container_name: back
     ports:
-      - "5021:5021"
+      - "5022:5022"
     depends_on:
       - db
 volumes:
